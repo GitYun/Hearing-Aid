@@ -207,14 +207,14 @@ int8_t wm8974_InputPGAEnable(uint8_t newState)		// R2(): 2bit
  */
 int8_t wm8974_InputPGAVolumeCtrl(uint8_t volume)	// R45(): 5:0bit
 {
-	uint16_t regVal;
+	uint16_t regVal = 0;
 	
-	if (volume > 64)
-		return 1;
+	if (volume > 0x3F)
+		volume = 0x3F;
 	
-	g_wm8974AllCtrlWordArr[WM8974_INPUT_PGA_GAIN_CTRL].value |= (uint16_t)volume;
-	regVal = g_wm8974AllCtrlWordArr[WM8974_INPUT_PGA_GAIN_CTRL].value;
-	wm89xx_WriteOneRegister(&I2C_HANDLE, WM8974_I2C_ADDR, regVal, g_wm8974AllCtrlWordArr[WM8974_INPUT_PGA_GAIN_CTRL].reg);
+	regVal = (g_wm8974AllCtrlWordArr[WM8974_INPUT_PGA_GAIN_CTRL].value & (~0x003F)) | (uint16_t)volume;
+	if (0 == wm89xx_WriteOneRegister(&I2C_HANDLE, WM8974_I2C_ADDR, regVal, g_wm8974AllCtrlWordArr[WM8974_INPUT_PGA_GAIN_CTRL].reg))
+        g_wm8974AllCtrlWordArr[WM8974_INPUT_PGA_GAIN_CTRL].value = regVal;
 	
 	return 0;
 }

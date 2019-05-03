@@ -54,6 +54,7 @@
 /* USER CODE BEGIN Includes */
 #include "keys.h"
 #include "batLed.h"
+#include "iwdg.h"
 /* USER CODE END Includes */
 
 /* Variables -----------------------------------------------------------------*/
@@ -138,13 +139,13 @@ void MX_FREERTOS_Init(void) {
 
   /* Create the thread(s) */
   /* definition and creation of defaultTask */
-  osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 128);
+  osThreadDef(defaultTask, StartDefaultTask, osPriorityLow, 0, 128); /* Priority is 1 */
   defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
-	keysTaskInit();			/* Oruirity is 9 */
-	batterTaskInit();		/* Priority is 11 */
+	keysTaskInit();			/* Priority is 1, periodic, 70ms */
+	batterTaskInit();		/* Priority is 2, periodic, 10ms */
   /* USER CODE END RTOS_THREADS */
 
   /* USER CODE BEGIN RTOS_QUEUES */
@@ -163,7 +164,8 @@ void StartDefaultTask(void const * argument)
   for(;;)
   {
     //osDelay(1);
-		__wfe();	// mcu is go to sleep and wait for wake up by interrupt or OS event 
+      HAL_IWDG_Refresh(&hiwdg);
+      __wfe();	// mcu is go to sleep and wait for wake up by interrupt or OS event 
   }
   /* USER CODE END StartDefaultTask */
 }

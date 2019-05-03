@@ -20,43 +20,53 @@ static void vCheckBatterChargeStateTask(void * const pvParameters);
 void batterTaskInit()
 {
 	TaskHandle_t handle;
-	xTaskCreate(vCheckBatterChargeStateTask, "Batter management task", 256, NULL, 11UL, &handle);
+	xTaskCreate(vCheckBatterChargeStateTask, "Batter management task", 128, NULL, 2UL, &handle);
 }
 
 static void vCheckBatterChargeStateTask(void * const pvParameters)
 {
 	(void)(pvParameters);
 	static ChargeState_t batterState = BAT_STATE_UNDEF;
-
+    TickType_t xLastWakeTick = xTaskGetTickCount();
+    uint16_t ledFlashTimeout = 0;
+    
 	for(;;)
 	{
 		switch(batterState)
-    {
-      case BAT_STATE_UNDEF:
-        batterState = isBatterCharging();
-        break;
-      case BAT_CHARGING:
-        if (HAL_GPIO_ReadPin(BAT_LED_GPIO_Port, BAT_LED_Pin) == GPIO_PIN_RESET)
         {
-          HAL_GPIO_WritePin(BAT_LED_GPIO_Port, BAT_LED_Pin, GPIO_PIN_SET);
+          case BAT_STATE_UNDEF: // Normal and no charging, or non-normal mode
+            batterState = isBatterCharging();
+            ledFlashTimeout == 0 && (ledFlashTimeout = 100);
+            if ((--ledFlashTimeout) == 0)
+                HAL_GPIO_TogglePin(BAT_LED_GPIO_Port, BAT_LED_Pin);
+            break;
+          case BAT_CHARGING:
+            if (HAL_GPIO_ReadPin(BAT_LED_GPIO_Port, BAT_LED_Pin) == GPIO_PIN_RESET)
+            {
+              HAL_GPIO_WritePin(BAT_LED_GPIO_Port, BAT_LED_Pin, GPIO_PIN_SET);
+            }
+            batterState = isBatterChargingEnd();
+            break;
+          case BAT_CHARGE_END:
+            if (HAL_GPIO_ReadPin(BAT_LED_GPIO_Port, BAT_LED_Pin) == GPIO_PIN_SET)
+            {
+              HAL_GPIO_WritePin(BAT_LED_GPIO_Port, BAT_LED_Pin, GPIO_PIN_RESET);
+            }
+            batterState = isBatterCharging();
+            break;
+          case BAT_UVLO:
+            batterState = isBatterCharging();
+            ledFlashTimeout == 0 && (ledFlashTimeout = 25);
+            if ((--ledFlashTimeout) == 0)
+                HAL_GPIO_TogglePin(BAT_LED_GPIO_Port, BAT_LED_Pin);
+            break;
+          default:
+            batterState = BAT_STATE_UNDEF;
+            break;
         }
-        batterState = isBatterChargingEnd();
-        break;
-      case BAT_CHARGE_END:
-        if (HAL_GPIO_ReadPin(BAT_LED_GPIO_Port, BAT_LED_Pin) == GPIO_PIN_SET)
-        {
-          HAL_GPIO_WritePin(BAT_LED_GPIO_Port, BAT_LED_Pin, GPIO_PIN_RESET);
-        }
-        batterState = isBatterCharging();
-        break;
-      case BAT_UVLO:
-        HAL_GPIO_TogglePin(BAT_LED_GPIO_Port, BAT_LED_Pin);
-        batterState = isBatterCharging();
-        break;
-      default:
-        batterState = BAT_STATE_UNDEF;
-        break;
-    }
+        
+        // Blocked 10ms
+        vTaskDelayUntil(&xLastWakeTick, 10 / portTICK_PERIOD_MS);
 	}
 }
 

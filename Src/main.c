@@ -110,7 +110,7 @@ int main(void)
   MX_I2S3_Init();
   MX_USART2_UART_Init();
   MX_I2C1_Init();
-  MX_IWDG_Init();
+  MX_IWDG_Init();  // Note: Need to refresh the iwdg
 
   /* USER CODE BEGIN 2 */
 	wmAudioInit(g_wm8974InitCtrlWordArr, getCtrlWordArrSize());

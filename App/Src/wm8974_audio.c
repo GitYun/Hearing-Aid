@@ -23,8 +23,9 @@ wm89xx_ctrlWord_t wmGetCtrlWord(uint32_t idx)
 
 void wmSetOneCtrlWord(const wm89xx_ctrlWord_t * const ctrlWord)
 {
-	wm89xx_WriteOneRegister(&I2C_HANDLE, WM8974_I2C_ADDR, ctrlWord->value, ctrlWord->reg);
-	
-	g_wm8974AllCtrlWordArr[ctrlWord->reg].value = ctrlWord->value;
+	if (0 == wm89xx_WriteOneRegister(&I2C_HANDLE, WM8974_I2C_ADDR, ctrlWord->value, ctrlWord->reg))
+    {
+        g_wm8974AllCtrlWordArr[ctrlWord->reg].value = ctrlWord->value;
+    }
 }
 

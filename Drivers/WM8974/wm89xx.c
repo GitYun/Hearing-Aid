@@ -8,7 +8,8 @@ int8_t wm89xx_WriteOneRegister(	I2C_HandleTypeDef *hi2c,
 {
 	value |= ((uint16_t)reg << 9);
 	
-	if (HAL_I2C_Master_Transmit(hi2c, DevAddr, (uint8_t *)&value, sizeof(value), 10) == HAL_OK)
+    // I2C slave address need to left shift 1-bit, refer I2C registers
+	if (HAL_I2C_Master_Transmit(hi2c, (DevAddr<<1), (uint8_t *)&value, sizeof(value), 10) == HAL_OK)
 		return 0;
 	return 1;
 }

@@ -10,36 +10,49 @@ static uint32_t keysCheck(void);
 void keysTaskInit()
 {
 	TaskHandle_t handle;
-	xTaskCreate(vKeysOpTask, "Keys opretor task", 256, NULL, 9UL, &handle);
+	xTaskCreate(vKeysOpTask, "Keys opretor task", 128, NULL, 1UL, &handle);
 }
 
 static void vKeysOpTask(void * const pvParameters)
 {
-	uint32_t keysCode;
+	uint32_t keysCode, preKeysCode = 0;
 	uint8_t currentVol;
+    TickType_t xLastWakeTick = xTaskGetTickCount();
 	
-	if ((wmGetCtrlWord(WM8974_PWR_MANAGF2).value & 0x04) != 0x04)
-		wm8974_InputPGAEnable(1);
-	
-	if ((wmGetCtrlWord(WM8974_ALC_CTRL1).value & 0x0100) != 0x0100)
-		wm8974_ALCEnable(1);
-
-	currentVol = (g_wm8974AllCtrlWordArr[WM8974_PWR_MANAGF2].value & 0x3F);
-	keysCode = keysCheck();
-	
-	if (keysCode == 0x01)
-	{
-		g_wm8974AllCtrlWordArr[WM8974_PWR_MANAGF2].value |= ((++currentVol) & 0x3F);
-	}
-	else if (keysCode == 0x02)
-	{
-		g_wm8974AllCtrlWordArr[WM8974_PWR_MANAGF2].value |= (currentVol ? --currentVol : 0);
-	}
-	else
-	{
-		return;
-	}
-	wm8974_InputPGAVolumeCtrl(currentVol);
+    if ((wmGetCtrlWord(WM8974_PWR_MANAGF2).value & 0x04) != 0x04)
+        wm8974_InputPGAEnable(1);
+        
+    // When the Automatic Level Control (ALC) is enabled the input PGA gain is then 
+    // controlled automatically and the INPPGAVOL bits should not be used
+    if ((wmGetCtrlWord(WM8974_ALC_CTRL1).value & 0x0100) != 0x0100)
+        wm8974_ALCEnable(1);
+    
+    for(;;)
+    {
+        currentVol = (g_wm8974AllCtrlWordArr[WM8974_INPUT_PGA_GAIN_CTRL].value & 0x3F);
+        keysCode = keysCheck();
+        
+        // Change WM8974's R45 register feild: INPPGAVOL[5:0]
+        if (keysCode && (keysCode == preKeysCode))
+        {
+            if (keysCode == 0x01)
+            {
+                (currentVol < 0x3F) && (++currentVol);
+            }
+            else if (keysCode == 0x02)
+            {
+                (currentVol > 0) && (--currentVol);
+            }
+            else
+            {
+                ;
+            }
+            wm8974_InputPGAVolumeCtrl(currentVol);
+        }
+        preKeysCode = keysCode;
+        // Blocking 70ms
+        vTaskDelayUntil(&xLastWakeTick, 70 / portTICK_PERIOD_MS);
+    }
 }
 
 static uint32_t keysCheck(void)
