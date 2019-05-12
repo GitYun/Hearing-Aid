@@ -1,3 +1,6 @@
+// Copyright (c) 2019 Yoki
+// Licensed under the MIT License
+
 /**
   *******************************************************************************
   * @file		virtual_i2c.c

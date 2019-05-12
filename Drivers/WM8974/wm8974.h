@@ -1,3 +1,6 @@
+// Copyright (c) 2019 Yoki
+// Licensed under the MIT License
+
 #ifndef WM8974_H
 #define WM8974_H
 

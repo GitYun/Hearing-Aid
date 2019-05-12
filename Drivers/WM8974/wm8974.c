@@ -1,4 +1,5 @@
-
+// Copyright (c) 2019 Yoki
+// Licensed under the MIT License
 
 #include "wm8974.h"
 
@@ -58,23 +59,24 @@ wm89xx_ctrlWord_t g_wm8974InitCtrlWordArr[] = {
 	/* R44, MBVSEL(8bit) = 0(0=0.9*AVDD, 1= 0.65*AVDD), AUXMODE(3bit) = 0
 	 * AUX2INPPGA(2bit) = 0, MICN2INPPGA(1bit) = 1, MICP2INPPGA(0bit) = 1
 	 */
-	{0x0003, WM8974_INPUT_CTRL},
+	{0x0003, WM8974_INPUT_CTRL}, /* Differential mic input */
 	
-	// R45, INPPGAVOL=010000h(0dB), INPPGAMUTE = 0(not muted), INPPGAZC = 0(update gain when changes)
+	// R45, INPPGAVOL(5:0bit)=010000h(0dB, range from -12dB to +35.25dB in 0.75dB steps), 
+    // INPPGAMUTE(6bit) = 0(not muted), INPPGAZC(7bit) = 0(update gain when changes)
 	//{0x0010, WM8974_INPUT_PGA_GAIN_CTRL},		// reset default value
 	
 	/* R47, PGABOOST(8bit) = 0(0=+0dB, 1=+20dB), MICP2BOOSTVOL(6:4bit) = 000h(Path disabled), 
 	 * AUX2BOOSTVOL(2:0bit) = 000h(Path disabled)
-	*/
+	 */
 	//{0x0000, WM8974_ADC_BOOST_CTRL},		// reset default value
 	
 	/* R1, BUFDCOPEN(8bit) = 0(0=AVDD/2, 1=1.5xAVDD/2), AUXEN(6bit) = 0, PLLEN(5bit) = 0,
 	 * MICBEN(4bit) = 1, BIASEN(3bit) = 1, BUFIOEN(2bit) = 1, VMIDSEL(1:0bit) = 01(50kOhm)
 	 */
-	{0x001D, WM8974_PWR_MANAGE1},	
+	{0x001D, WM8974_PWR_MANAGE1},
 	
 	// R2, BOOSTEN(4bit) = 0, INPPGAEN(2bit) = 1, ADCEN(0bit) = 1
-	{0x0005, WM8974_PWR_MANAGF2},	
+	{0x0005, WM8974_PWR_MANAGF2},
 	
 	/* R14, HPFEN(8bit) = 1, HPAPP(7bit) = 0(0=~3.7Hz, 1=HPFCUT), HPFCUT(6:4bit) = 000h(Table 11),
 	 * ADCOSR(3bit) = 0(0=64x, 1=128x), ADCPOL(0bit) = 0(0=normal, 1=inverted), 
@@ -112,17 +114,17 @@ wm89xx_ctrlWord_t g_wm8974InitCtrlWordArr[] = {
 	/* R22, EQ5C(6:5bit) = 01h(fcutoff = 6.9kHz), EQ5G(4:0bit) = 10010h(-6dB, Table 35) */
 	{0x0032, WM8974_EQ5_HIGH_SHELF},
 	
-	/* R49, BUFDCOPEN(8bit) = 0, MONOBOOST(3bit) = 0(0=no boost, 1=1.5x gian boost, Table 37), 
+	/* R49, MONOBOOST(3bit) = 0(0=no boost, 1=1.5x gian boost, Table 37), 
 	 * SPKBOOST(2bit) = 0(0=no boost, 1=1.5x gian boost, Table 37), 
 	 * TSDEN(1bit) = 1(thermal shutdown enabled), VROI(0bit) = 0(0=1kOhm, 1=30kOhm)
 	 */
 	//{0x0002, WM8974_OUTPUT_CTRL},		// reset default value
 	
 	/* R50, AUX2SPK(5bit) = 0, BYP2SPK(1bit) = 0, DAC2SPK(0bit) = 1 */
-	//{0x0001, WM8974_SPK_MIXER_CTRL},	// reset default value
+	{0x0001, WM8974_SPK_MIXER_CTRL},	// reset default value
 	
 	/* R56, MONOMUTE(6bit) = 1(0=no mute, 1=output muted, During mute the mono output will output
-	 *												 VMID which can be used as a DC reference for a headphoneout),
+	 * VMID which can be used as a DC reference for a headphoneout),
 	 * AUX2MONO(2bit) = 0, BYP2MONO(1bit) = 0, DAC2MONO(0bit) = 0
 	*/
 	{0x0040, WM8974_MONO_MIXER_CTRL},	
@@ -153,7 +155,7 @@ uint16_t getCtrlWordArrSize(void)
 
  
 /**
- * @breif		Configuare WM8974's interface with MCU include that clcok and audio interface. 
+ * @breif		Configuare WM8974's interface with MCU include that clock and audio interface. 
  * @param		wm89xx_clockConfig_t - clock interface structure with MCU
  * @param		wm89xx_auidoInterface_t - audio interace structure with MCU
  * @retval		0 - success, 1 - failed.

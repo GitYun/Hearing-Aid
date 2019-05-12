@@ -1,3 +1,6 @@
+// Copyright (c) 2019 Yoki
+// Licensed under the MIT License
+
 #include "batLed.h"
 #include "main.h"
 #include "cmsis_os.h"

@@ -1,5 +1,7 @@
-#include "wm8974_audio.h"
+// Copyright (c) 2019 Yoki
+// Licensed under the MIT License
 
+#include "wm8974_audio.h"
 
 #define I2C_HANDLE	hi2c1
 

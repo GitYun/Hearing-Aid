@@ -1,3 +1,6 @@
+// Copyright (c) 2019 Yoki
+// Licensed under the MIT License
+
 // Header:
 // File Name: wm89xx.h
 // Author: RQY
@@ -24,7 +27,7 @@ typedef struct wm89xx_clockConfig_s
 	uint8_t mode;				// MS bit, 0 = slave mode, 1 = master mode
 	uint8_t bclkDiv;		// BCLKDIV bit, Configures the BCLK and FRAME output frequency
 	uint8_t mclkDiv;		// MCLKDIV bit, Sets the scaling for either the MCLK or PLL clock output
-	uint8_t clkSel;			// Controls the source of the clcok for all internal operation
+	uint8_t clkSel;			// Controls the source of the clock for all internal operation
 } wm89xx_clockConfig_t;
 
 typedef struct wm89xx_audioInterface_s

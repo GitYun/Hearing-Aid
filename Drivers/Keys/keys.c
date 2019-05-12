@@ -1,3 +1,5 @@
+// Copyright (c) 2019 Yoki
+// Licensed under the MIT License
 
 #include "main.h"
 #include "keys.h"
@@ -24,8 +26,8 @@ static void vKeysOpTask(void * const pvParameters)
         
     // When the Automatic Level Control (ALC) is enabled the input PGA gain is then 
     // controlled automatically and the INPPGAVOL bits should not be used
-    if ((wmGetCtrlWord(WM8974_ALC_CTRL1).value & 0x0100) != 0x0100)
-        wm8974_ALCEnable(1);
+    //if ((wmGetCtrlWord(WM8974_ALC_CTRL1).value & 0x0100) != 0x0100)
+    //    wm8974_ALCEnable(1);
     
     for(;;)
     {

@@ -113,7 +113,32 @@ int main(void)
   MX_IWDG_Init();  // Note: Need to refresh the iwdg
 
   /* USER CODE BEGIN 2 */
-	wmAudioInit(g_wm8974InitCtrlWordArr, getCtrlWordArrSize());
+#define TEST_WM8974     1
+#if TEST_WM8974  
+  wmAudioInit(g_wm8974InitCtrlWordArr, getCtrlWordArrSize());
+  wm89xx_ctrlWord_t wmTemp;
+/*  
+  wmTemp = wmGetCtrlWord(2);
+  wmTemp.value &= ~(1 << 0); // ADCEN disable
+  wmSetOneCtrlWord(&wmTemp);
+  
+  wmTemp = wmGetCtrlWord(3);
+  wmTemp.value &= ~(1 << 0); // DACEN disable
+  wmSetOneCtrlWord(&wmTemp);
+*/
+
+  wmTemp = wmGetCtrlWord(2);
+  wmTemp.value |= (1 << 4); // Input BOOSTEN enable
+  wmSetOneCtrlWord(&wmTemp);
+  
+  wmTemp = wmGetCtrlWord(47);
+  wmTemp.value |= (1 << 8); // PGA output has +20dB gain through input BOOST stage
+  wmSetOneCtrlWord(&wmTemp);
+
+  wmTemp = wmGetCtrlWord(50);
+  wmTemp.value = 0x0002;     // IN PGA bypass to speark output
+  wmSetOneCtrlWord(&wmTemp);
+#endif
   /* USER CODE END 2 */
 
   /* Call init function for freertos objects (in freertos.c) */

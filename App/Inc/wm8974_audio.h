@@ -1,3 +1,6 @@
+// Copyright (c) 2019 Yoki
+// Licensed under the MIT License
+
 // Header:
 // File Name: 
 // Author:
